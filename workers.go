@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -20,16 +21,35 @@ func requestWorker(ctx context.Context, url string, queue chan<- RequestResult) 
 			resp, err := httpClient.Get(url)
 			timeTaken := time.Since(curr)
 			success := true
+			var errorInfo *RequestError
 
 			if err != nil {
 				success = false
+				errorInfo = &RequestError{
+					Timestamp:  time.Now(),
+					Error:      err.Error(),
+					StatusCode: 0,
+					Latency:    timeTaken,
+				}
 			} else {
 				if resp == nil {
 					success = false
+					errorInfo = &RequestError{
+						Timestamp:  time.Now(),
+						Error:      "nil response",
+						StatusCode: 0,
+						Latency:    timeTaken,
+					}
 				} else {
 					_ = resp.Body.Close()
 					if resp.StatusCode > 299 {
 						success = false
+						errorInfo = &RequestError{
+							Timestamp:  time.Now(),
+							Error:      fmt.Sprintf("HTTP %d", resp.StatusCode),
+							StatusCode: resp.StatusCode,
+							Latency:    timeTaken,
+						}
 					}
 				}
 			}
@@ -37,6 +57,7 @@ func requestWorker(ctx context.Context, url string, queue chan<- RequestResult) 
 			queue <- RequestResult{
 				success:   success,
 				timeTaken: timeTaken,
+				errorInfo: errorInfo,
 			}
 		}
 	}

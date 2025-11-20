@@ -51,4 +51,8 @@ func main() {
 	writerWg.Wait()
 
 	metrics.Print()
+
+	if err := metrics.WriteErrorsToFile("errors.log"); err != nil {
+		fmt.Printf("Failed to write errors: %v\n", err)
+	}
 }

@@ -5,9 +5,17 @@ import (
 	"time"
 )
 
+type RequestError struct {
+	Timestamp  time.Time
+	Error      string
+	StatusCode int
+	Latency    time.Duration
+}
+
 type RequestResult struct {
 	success   bool
 	timeTaken time.Duration
+	errorInfo *RequestError
 }
 
 type Metrics struct {
@@ -18,5 +26,6 @@ type Metrics struct {
 	maxLatency         time.Duration
 	avgLatency         time.Duration
 	totalLatency       time.Duration
+	errors             []RequestError
 	mux                sync.Mutex
 }
