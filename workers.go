@@ -8,7 +8,7 @@ import (
 )
 
 var httpClient = &http.Client{
-	Timeout: time.Second,
+	Timeout: 5 * time.Second,
 }
 
 func requestWorker(ctx context.Context, url string, queue chan<- RequestResult) {
