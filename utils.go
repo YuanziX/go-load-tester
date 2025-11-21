@@ -45,7 +45,7 @@ func (m *Metrics) Print() {
 	if m.totalRequests > 0 {
 		fmt.Printf("Success Rate:        %.2f%%\n", float64(m.successfulRequests)/float64(m.totalRequests)*100)
 		// Check if minLatency was actually updated (not still at max value)
-		if m.minLatency != time.Duration(1<<63-1) {
+		if m.minLatency != maxDuration {
 			fmt.Printf("Min Latency:         %v\n", m.minLatency)
 			fmt.Printf("Max Latency:         %v\n", m.maxLatency)
 		} else {
@@ -55,7 +55,9 @@ func (m *Metrics) Print() {
 		fmt.Printf("Avg Latency:         %v\n", m.avgLatency)
 	} else {
 		fmt.Printf("Success Rate:        N/A\n")
-		fmt.Printf("Latency:             N/A\n")
+		fmt.Printf("Min Latency:         N/A\n")
+		fmt.Printf("Max Latency:         N/A\n")
+		fmt.Printf("Avg Latency:         N/A\n")
 	}
 }
 
