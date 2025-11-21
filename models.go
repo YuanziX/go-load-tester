@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const maxDuration = time.Duration(1<<63 - 1)
+
 type RequestError struct {
 	Timestamp  time.Time
 	Error      string
@@ -31,6 +33,6 @@ type Metrics struct {
 }
 
 func getMetricsObject() (metrics Metrics) {
-	metrics = Metrics{minLatency: time.Duration(1<<63 - 1)}
+	metrics = Metrics{minLatency: maxDuration}
 	return
 }
