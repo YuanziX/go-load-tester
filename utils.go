@@ -41,7 +41,7 @@ func (m *Metrics) Print() {
 	fmt.Printf("Total Requests:      %d\n", m.totalRequests)
 	fmt.Printf("Successful:          %d\n", m.successfulRequests)
 	fmt.Printf("Failed:              %d\n", m.failedRequests)
-	
+
 	if m.totalRequests > 0 {
 		fmt.Printf("Success Rate:        %.2f%%\n", float64(m.successfulRequests)/float64(m.totalRequests)*100)
 		// Check if minLatency was actually updated (not still at max value)
