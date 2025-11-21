@@ -41,7 +41,7 @@ func requestWorker(ctx context.Context, url string, rps int, queue chan<- Reques
 						Latency:    timeTaken,
 					}
 				} else {
-					_ = resp.Body.Close()
+					defer resp.Body.Close()
 					if resp.StatusCode > 299 {
 						success = false
 						errorInfo = &RequestError{
