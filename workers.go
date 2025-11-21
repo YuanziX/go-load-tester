@@ -11,8 +11,8 @@ var httpClient = &http.Client{
 	Timeout: 5 * time.Second,
 }
 
-func requestWorker(ctx context.Context, url string, queue chan<- RequestResult) {
-	for {
+func requestWorker(ctx context.Context, url string, rps int, queue chan<- RequestResult) {
+	for range rps {
 		select {
 		case <-ctx.Done():
 			return

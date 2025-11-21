@@ -3,49 +3,59 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
 	"sync"
-	"time"
+	"syscall"
 )
 
-var requestWorkerCount int = 500
-var writerWorkerCount int = 50
-var url string = "YOUR_URL_HERE"
-var testingDuration time.Duration = 5 * time.Second
+var url string = "http://localhost:3000"
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// setup config
+	config := getDefaultConfig(url)
+
 	queue := make(chan RequestResult, 10_000)
+
+	// setup channel for sigint
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGINT)
+
+	go func() {
+		<-sigCh
+		fmt.Println("\nReceived interrupt signal, shutting down")
+		cancel()
+	}()
 
 	var workersWg sync.WaitGroup
 	var writerWg sync.WaitGroup
 
-	metrics := Metrics{minLatency: time.Duration(1<<63 - 1)}
+	metrics := getMetricsObject()
 
 	fmt.Printf("Starting load test\n")
 	fmt.Printf("URL: %s\n", url)
-	fmt.Printf("Workers: %d\n", requestWorkerCount)
-	fmt.Printf("Duration: %v\n\n", testingDuration)
+	fmt.Printf("Workers: %d\n", config.requestWorkersCount)
+	fmt.Printf("Requests per worker: %d\n", config.requestsPerWorker)
 
-	workersWg.Add(requestWorkerCount)
-	for range requestWorkerCount {
+	workersWg.Add(config.requestWorkersCount)
+	for range config.requestWorkersCount {
 		go func() {
 			defer workersWg.Done()
-			requestWorker(ctx, url, queue)
+			requestWorker(ctx, url, config.requestsPerWorker, queue)
 		}()
 	}
 
-	writerWg.Add(writerWorkerCount)
-	for range writerWorkerCount {
+	writerWg.Add(config.writerWorkersCount)
+	for range config.writerWorkersCount {
 		go func() {
 			defer writerWg.Done()
 			metrics.writeWorker(ctx, queue)
 		}()
 	}
 
-	time.Sleep(testingDuration)
-	cancel()
 	workersWg.Wait()
 	close(queue)
 	writerWg.Wait()

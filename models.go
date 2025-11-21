@@ -29,3 +29,8 @@ type Metrics struct {
 	errors             []RequestError
 	mux                sync.Mutex
 }
+
+func getMetricsObject() (metrics Metrics) {
+	metrics = Metrics{minLatency: time.Duration(1<<63 - 1)}
+	return
+}
