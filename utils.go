@@ -8,14 +8,6 @@ import (
 	"syscall"
 )
 
-func printStartup(config Config) {
-	fmt.Printf("Starting load test\n")
-	fmt.Printf("URL: %s\n", config.url)
-	fmt.Printf("Workers: %d\n", config.requestWorkersCount)
-	fmt.Printf("Requests per worker: %d\n", config.requestsPerWorker)
-
-}
-
 func setupShutdownWorker(cancel context.CancelFunc) {
 	// setup channel for sigint
 	sigCh := make(chan os.Signal, 1)
@@ -26,4 +18,11 @@ func setupShutdownWorker(cancel context.CancelFunc) {
 		fmt.Println("\nReceived interrupt signal, shutting down")
 		cancel()
 	}()
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

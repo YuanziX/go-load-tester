@@ -19,18 +19,25 @@ type RequestResult struct {
 }
 
 type Metrics struct {
-	totalRequests      int
-	successfulRequests int
-	failedRequests     int
-	minLatency         time.Duration
-	maxLatency         time.Duration
-	avgLatency         time.Duration
-	totalLatency       time.Duration
-	errors             []RequestError
-	mux                sync.Mutex
+	TotalRequests      int
+	SuccessfulRequests int
+	FailedRequests     int
+	MinLatency         time.Duration
+	MaxLatency         time.Duration
+	AvgLatency         time.Duration
+	TotalLatency       time.Duration
+	Errors             []RequestError
+
+	IsCompleted bool
+	Mux         sync.RWMutex
 }
 
 func getMetricsObject() (metrics Metrics) {
-	metrics = Metrics{minLatency: time.Duration(1<<63 - 1)}
+	metrics = Metrics{MinLatency: MaxDuration}
 	return
+}
+
+type HttpResponse struct {
+	success bool
+	data    string
 }

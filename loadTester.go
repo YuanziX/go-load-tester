@@ -6,7 +6,7 @@ import (
 )
 
 func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Context) {
-	queue := make(chan RequestResult, 10_000)
+	queue := make(chan RequestResult, config.queueChannelSize)
 	var workersWg sync.WaitGroup
 	var writerWg sync.WaitGroup
 
@@ -14,7 +14,7 @@ func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Contex
 	for range config.requestWorkersCount {
 		go func() {
 			defer workersWg.Done()
-			requestWorker(ctx, url, config.requestsPerWorker, queue)
+			requestWorker(ctx, config.url, config.requestsPerWorker, queue)
 		}()
 	}
 
@@ -26,7 +26,13 @@ func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Contex
 		}()
 	}
 
-	workersWg.Wait()
-	close(queue)
-	writerWg.Wait()
+	go func() {
+		workersWg.Wait()
+		close(queue)
+		writerWg.Wait()
+
+		metrics.Mux.Lock()
+		defer metrics.Mux.Unlock()
+		metrics.IsCompleted = true
+	}()
 }
