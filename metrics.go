@@ -3,8 +3,28 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 )
+
+type Metrics struct {
+	TotalRequests      int
+	SuccessfulRequests int
+	FailedRequests     int
+	MinLatency         time.Duration
+	MaxLatency         time.Duration
+	AvgLatency         time.Duration
+	TotalLatency       time.Duration
+	Errors             []RequestError
+
+	IsCompleted bool
+	Mux         sync.RWMutex
+}
+
+func getMetricsObject() (metrics Metrics) {
+	metrics = Metrics{MinLatency: MaxDuration}
+	return
+}
 
 func (m *Metrics) update(reqResults []RequestResult) {
 	m.Mux.Lock()

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"sync"
 	"time"
 )
 
@@ -17,25 +16,6 @@ type RequestResult struct {
 	success   bool
 	timeTaken time.Duration
 	errorInfo *RequestError
-}
-
-type Metrics struct {
-	TotalRequests      int
-	SuccessfulRequests int
-	FailedRequests     int
-	MinLatency         time.Duration
-	MaxLatency         time.Duration
-	AvgLatency         time.Duration
-	TotalLatency       time.Duration
-	Errors             []RequestError
-
-	IsCompleted bool
-	Mux         sync.RWMutex
-}
-
-func getMetricsObject() (metrics Metrics) {
-	metrics = Metrics{MinLatency: MaxDuration}
-	return
 }
 
 type HttpResponse struct {
