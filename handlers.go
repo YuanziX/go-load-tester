@@ -46,7 +46,7 @@ func (s *Server) createJob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	config := getConfigWithParams(
-		params.Url,
+		normalizeURL(params.Url),
 		params.RequestsPerSecond,
 		params.RequestsPerWorker,
 	)
