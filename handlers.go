@@ -16,6 +16,7 @@ func (s *Server) getMetrics(w http.ResponseWriter, r *http.Request) {
 			success: false,
 			data:    "No such job exists in the system",
 		})
+		return
 	}
 
 	m := &job.metrics
