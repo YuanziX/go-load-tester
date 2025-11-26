@@ -48,6 +48,7 @@ type Job struct {
 	metrics Metrics
 	ctx     context.Context
 	cancel  context.CancelFunc
+	done    chan struct{}
 }
 
 type Server struct {

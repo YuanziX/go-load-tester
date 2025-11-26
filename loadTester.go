@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Context) {
+func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Context, done chan struct{}) {
 	queue := make(chan RequestResult, config.queueChannelSize)
 	var workersWg sync.WaitGroup
 	var writerWg sync.WaitGroup
@@ -32,7 +32,9 @@ func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Contex
 		writerWg.Wait()
 
 		metrics.Mux.Lock()
-		defer metrics.Mux.Unlock()
 		metrics.IsCompleted = true
+		metrics.Mux.Unlock()
+
+		close(done)
 	}()
 }

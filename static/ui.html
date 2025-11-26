@@ -11,6 +11,8 @@
     :root {
       --primary-color: #3b82f6;
       --primary-dark: #1d4ed8;
+      --red: #ef4444;
+      --red-dark: #dc2626;
       --background-light: #f3f4f6;
       --text-color: #1f2937;
       --border-color: #d1d5db;
@@ -87,9 +89,8 @@
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
 
-    .btn-submit {
+    .btn {
       width: 100%;
-      background-color: var(--primary-color);
       color: white;
       border: none;
       padding: 14px 24px;
@@ -101,12 +102,24 @@
       transition: background-color 0.2s, box-shadow 0.2s;
     }
 
+    .btn-submit {
+      background-color: var(--primary-color);
+    }
+
     .btn-submit:hover {
       background-color: var(--primary-dark);
     }
 
     .btn-submit:active {
       background-color: #1e40af;
+    }
+
+    .btn-stop {
+      background-color: var(--red);
+    }
+
+    .btn-stop:hover {
+      background-color: var(--red-dark);
     }
 
     .status-section {
@@ -213,7 +226,9 @@
             />
           </div>
 
-          <button @click="submit()" class="btn-submit">Start Load Test</button>
+          <button @click="submit()" class="btn btn-submit">
+            Start Load Test
+          </button>
         </div>
       </template>
 
@@ -224,12 +239,15 @@
           <template x-if="!isCompleted">
             <div class="status-section">
               <span>Processing: Load test is running...</span>
+              <button @click="stop()" class="btn btn-stop">
+                <span x-text="isStopping ? '⏳ Stopping...' : 'Stop'"></span>
+              </button>
             </div>
           </template>
           <template x-if="isCompleted">
             <div class="status-section completed">
               <span>Completed: Load testing has finished!</span>
-              <button @click="reset()" class="btn-submit">Retest</button>
+              <button @click="reset()" class="btn btn-submit">Retest</button>
             </div>
           </template>
 
@@ -302,6 +320,7 @@
           id: "",
           isWorking: false,
           isCompleted: false,
+          isStopping: false,
           url: "http://localhost:3000/",
           requestsPerSecond: 500,
           requestsPerWorker: 5,
@@ -354,13 +373,24 @@
             }
           },
 
+          async stop() {
+            // stop polling
+            clearInterval(this.intervalId);
+            this.isStopping = true;
+            const res = await fetch(`/metrics?id=${this.id}`, {
+              method: "DELETE",
+            });
+
+            const newMetrics = await res.json();
+            this.metrics = newMetrics;
+            this.isCompleted = true;
+            this.isStopping = false;
+          },
+
           async reset() {
             this.isWorking = false;
             this.isCompleted = false;
-
-            await await fetch("/metrics", {
-              method: "DELETE",
-            });
+            this.id = "";
           },
 
           async submit() {
