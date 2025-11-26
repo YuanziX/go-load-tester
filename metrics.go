@@ -6,46 +6,33 @@ import (
 	"time"
 )
 
-func (m *Metrics) update(reqRes RequestResult) {
+func (m *Metrics) update(reqResults []RequestResult) {
 	m.Mux.Lock()
 	defer m.Mux.Unlock()
 
-	m.TotalRequests++
+	for _, reqRes := range reqResults {
+		m.TotalRequests++
 
-	if reqRes.success {
-		m.SuccessfulRequests++
-	} else {
-		m.FailedRequests++
-		if reqRes.errorInfo != nil {
-			m.Errors = append(m.Errors, *reqRes.errorInfo)
+		if reqRes.success {
+			m.SuccessfulRequests++
+		} else {
+			m.FailedRequests++
+			if reqRes.errorInfo != nil {
+				m.Errors = append(m.Errors, *reqRes.errorInfo)
+			}
 		}
+
+		if reqRes.timeTaken < m.MinLatency {
+			m.MinLatency = reqRes.timeTaken
+		}
+
+		if reqRes.timeTaken > m.MaxLatency {
+			m.MaxLatency = reqRes.timeTaken
+		}
+
+		m.TotalLatency += reqRes.timeTaken
+		m.AvgLatency = m.TotalLatency / time.Duration(m.TotalRequests)
 	}
-
-	if reqRes.timeTaken < m.MinLatency {
-		m.MinLatency = reqRes.timeTaken
-	}
-
-	if reqRes.timeTaken > m.MaxLatency {
-		m.MaxLatency = reqRes.timeTaken
-	}
-
-	m.TotalLatency += reqRes.timeTaken
-	m.AvgLatency = m.TotalLatency / time.Duration(m.TotalRequests)
-}
-
-func (m *Metrics) Print() {
-	m.Mux.RLock()
-	defer m.Mux.RUnlock()
-
-	fmt.Println("Load Test Results")
-	fmt.Printf("Total Requests:      %d\n", m.TotalRequests)
-	fmt.Printf("Successful:          %d\n", m.SuccessfulRequests)
-	fmt.Printf("Failed:              %d\n", m.FailedRequests)
-	fmt.Printf("Success Rate:        %.2f%%\n", float64(m.SuccessfulRequests)/float64(m.TotalRequests)*100)
-	fmt.Printf("Min Latency:         %v\n", m.MinLatency)
-	fmt.Printf("Max Latency:         %v\n", m.MaxLatency)
-	fmt.Printf("Avg Latency:         %v\n", m.AvgLatency)
-	fmt.Printf("Requests/sec:        %.2f\n", float64(m.TotalRequests)/5.0)
 }
 
 func (m *Metrics) WriteErrorsToFile(filename string) error {

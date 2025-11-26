@@ -190,22 +190,24 @@
           </div>
 
           <div class="form-group">
-            <label for="workers">Enter Worker Count:</label>
+            <label for="workers">Enter Requests per second:</label>
             <input
               type="number"
               id="workers"
-              x-model="workerCount"
+              x-model="requestsPerSecond"
               min="1"
               placeholder="e.g., 500"
             />
           </div>
 
           <div class="form-group">
-            <label for="rpw">Enter Requests per worker:</label>
+            <label for="requestsPerWorker"
+              >Duration of test (in seconds):</label
+            >
             <input
               type="number"
-              id="rpw"
-              x-model="rpw"
+              id="requestsPerWorker"
+              x-model="requestsPerWorker"
               min="1"
               placeholder="e.g., 1000"
             />
@@ -297,11 +299,12 @@
     <script>
       function loadTester() {
         return {
+          id: "",
           isWorking: false,
           isCompleted: false,
           url: "http://localhost:3000/",
-          workerCount: 500,
-          rpw: 1000,
+          requestsPerSecond: 500,
+          requestsPerWorker: 5,
           metrics: {},
           intervalId: null,
 
@@ -331,16 +334,18 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 url: this.url,
-                rwc: Number(this.workerCount),
-                rpw: Number(this.rpw),
+                rps: Number(this.requestsPerSecond),
+                rpw: Number(this.requestsPerWorker),
               }),
             });
 
-            this.metrics = await res.json();
+            resp = await res.json();
+            this.metrics = resp["Metrics"];
+            this.id = resp["Id"];
           },
 
           async updateMetrics() {
-            const res = await fetch("/metrics");
+            const res = await fetch(`/metrics?id=${this.id}`);
             const newMetrics = await res.json();
             this.metrics = newMetrics;
             if (newMetrics["IsCompleted"]) {
@@ -359,7 +364,11 @@
           },
 
           async submit() {
-            if (!this.url || this.workerCount <= 0 || this.rpw <= 0) {
+            if (
+              !this.url ||
+              this.requestsPerSecond <= 0 ||
+              this.requestsPerWorker <= 0
+            ) {
               alert(
                 "Please enter valid URL, Worker Count, and Requests per worker."
               );

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -40,4 +41,15 @@ func getMetricsObject() (metrics Metrics) {
 type HttpResponse struct {
 	success bool
 	data    string
+}
+
+type Job struct {
+	config  Config
+	metrics Metrics
+	ctx     context.Context
+	cancel  context.CancelFunc
+}
+
+type Server struct {
+	jobs map[string]*Job
 }

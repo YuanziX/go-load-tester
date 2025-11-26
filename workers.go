@@ -3,20 +3,31 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
 
 var httpClient = &http.Client{
 	Timeout: DefaultTimeout,
+	Transport: &http.Transport{
+		MaxIdleConns:        1000,
+		MaxIdleConnsPerHost: 500,
+		MaxConnsPerHost:     500,
+		IdleConnTimeout:     90 * time.Second,
+		DisableKeepAlives:   false,
+	},
 }
 
-func requestWorker(ctx context.Context, url string, rps int, queue chan<- RequestResult) {
-	for range rps {
+func requestWorker(ctx context.Context, url string, rpw int, queue chan<- RequestResult) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	for range rpw {
 		select {
 		case <-ctx.Done():
 			return
-		default:
+		case <-ticker.C:
 			curr := time.Now()
 			resp, err := httpClient.Get(url)
 			timeTaken := time.Since(curr)
@@ -41,7 +52,8 @@ func requestWorker(ctx context.Context, url string, rps int, queue chan<- Reques
 						Latency:    timeTaken,
 					}
 				} else {
-					_ = resp.Body.Close()
+					io.Copy(io.Discard, resp.Body)
+					resp.Body.Close()
 					if resp.StatusCode > 299 {
 						success = false
 						errorInfo = &RequestError{
@@ -64,15 +76,29 @@ func requestWorker(ctx context.Context, url string, rps int, queue chan<- Reques
 }
 
 func (m *Metrics) writeWorker(ctx context.Context, queue <-chan RequestResult) {
+	list := make([]RequestResult, 0, 520)
+
 	for {
 		select {
 		case <-ctx.Done():
+			if len(list) > 0 {
+				m.update(list)
+				list = list[:0]
+			}
 			return
 		case reqRes, ok := <-queue:
 			if !ok {
+				if len(list) > 0 {
+					m.update(list)
+				}
 				return
 			}
-			m.update(reqRes)
+			list = append(list, reqRes)
+
+			if len(list) >= 500 {
+				m.update(list)
+				list = list[:0]
+			}
 		}
 	}
 }
