@@ -13,8 +13,8 @@ func (s *Server) getMetrics(w http.ResponseWriter, r *http.Request) {
 	job, ok := s.jobs[id]
 	if !ok {
 		json.NewEncoder(w).Encode(HttpResponse{
-			success: false,
-			data:    "No such job exists in the system",
+			Success: false,
+			Data:    "No such job exists in the system",
 		})
 		return
 	}
@@ -22,8 +22,8 @@ func (s *Server) getMetrics(w http.ResponseWriter, r *http.Request) {
 	m := &job.metrics
 
 	w.Header().Set("Content-Type", "application/json")
-	m.Mux.RLock()
-	defer m.Mux.RUnlock()
+	m.mux.RLock()
+	defer m.mux.RUnlock()
 	json.NewEncoder(w).Encode(&m)
 }
 
@@ -38,8 +38,8 @@ func (s *Server) createJob(w http.ResponseWriter, r *http.Request) {
 	params := payload{}
 	if err := decoder.Decode(&params); err != nil {
 		json.NewEncoder(w).Encode(HttpResponse{
-			success: false,
-			data:    "Failed to decode payload",
+			Success: false,
+			Data:    "Failed to decode payload",
 		})
 		log.Println(err)
 		return
@@ -66,8 +66,8 @@ func (s *Server) createJob(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(struct {
-		Id      string
-		Metrics *Metrics
+		Id      string   `json:"id"`
+		Metrics *Metrics `json:"metrics"`
 	}{
 		Id:      key,
 		Metrics: &job.metrics,
@@ -80,8 +80,8 @@ func (s *Server) cancelJob(w http.ResponseWriter, r *http.Request) {
 	job, ok := s.jobs[id]
 	if !ok {
 		json.NewEncoder(w).Encode(HttpResponse{
-			success: false,
-			data:    "No such job exists in the system",
+			Success: false,
+			Data:    "No such job exists in the system",
 		})
 		return
 	}
@@ -90,7 +90,7 @@ func (s *Server) cancelJob(w http.ResponseWriter, r *http.Request) {
 	<-job.done // wait for workers to stop
 
 	w.Header().Set("Content-Type", "application/json")
-	job.metrics.Mux.RLock()
-	defer job.metrics.Mux.RUnlock()
+	job.metrics.mux.RLock()
+	defer job.metrics.mux.RUnlock()
 	json.NewEncoder(w).Encode(&job.metrics)
 }

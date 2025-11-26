@@ -67,9 +67,9 @@ func requestWorker(ctx context.Context, url string, rpw int, queue chan<- Reques
 			}
 
 			queue <- RequestResult{
-				success:   success,
-				timeTaken: timeTaken,
-				errorInfo: errorInfo,
+				Success:   success,
+				TimeTaken: timeTaken,
+				ErrorInfo: errorInfo,
 			}
 		}
 	}

@@ -31,9 +31,9 @@ func setupLoadTesterWorkers(config *Config, metrics *Metrics, ctx context.Contex
 		close(queue)
 		writerWg.Wait()
 
-		metrics.Mux.Lock()
+		metrics.mux.Lock()
 		metrics.IsCompleted = true
-		metrics.Mux.Unlock()
+		metrics.mux.Unlock()
 
 		close(done)
 	}()

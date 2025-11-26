@@ -13,14 +13,14 @@ type RequestError struct {
 }
 
 type RequestResult struct {
-	success   bool
-	timeTaken time.Duration
-	errorInfo *RequestError
+	Success   bool          `json:"success"`
+	TimeTaken time.Duration `json:"timeTaken"`
+	ErrorInfo *RequestError `json:"errorInfo"`
 }
 
 type HttpResponse struct {
-	success bool
-	data    string
+	Success bool   `json:"success"`
+	Data    string `json:"data"`
 }
 
 type Job struct {

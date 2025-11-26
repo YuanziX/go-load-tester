@@ -8,17 +8,17 @@ import (
 )
 
 type Metrics struct {
-	TotalRequests      int
-	SuccessfulRequests int
-	FailedRequests     int
-	MinLatency         time.Duration
-	MaxLatency         time.Duration
-	AvgLatency         time.Duration
-	TotalLatency       time.Duration
-	Errors             []RequestError
+	TotalRequests      int            `json:"totalRequests"`
+	SuccessfulRequests int            `json:"successfulRequests"`
+	FailedRequests     int            `json:"failedRequests"`
+	MinLatency         time.Duration  `json:"minLatency"`
+	MaxLatency         time.Duration  `json:"maxLatency"`
+	AvgLatency         time.Duration  `json:"avgLatency"`
+	TotalLatency       time.Duration  `json:"totalLatency"`
+	Errors             []RequestError `json:"errors"`
 
-	IsCompleted bool
-	Mux         sync.RWMutex
+	IsCompleted bool `json:"isCompleted"`
+	mux         sync.RWMutex
 }
 
 func getMetricsObject() (metrics Metrics) {
@@ -27,37 +27,37 @@ func getMetricsObject() (metrics Metrics) {
 }
 
 func (m *Metrics) update(reqResults []RequestResult) {
-	m.Mux.Lock()
-	defer m.Mux.Unlock()
+	m.mux.Lock()
+	defer m.mux.Unlock()
 
 	for _, reqRes := range reqResults {
 		m.TotalRequests++
 
-		if reqRes.success {
+		if reqRes.Success {
 			m.SuccessfulRequests++
 		} else {
 			m.FailedRequests++
-			if reqRes.errorInfo != nil {
-				m.Errors = append(m.Errors, *reqRes.errorInfo)
+			if reqRes.ErrorInfo != nil {
+				m.Errors = append(m.Errors, *reqRes.ErrorInfo)
 			}
 		}
 
-		if reqRes.timeTaken < m.MinLatency {
-			m.MinLatency = reqRes.timeTaken
+		if reqRes.TimeTaken < m.MinLatency {
+			m.MinLatency = reqRes.TimeTaken
 		}
 
-		if reqRes.timeTaken > m.MaxLatency {
-			m.MaxLatency = reqRes.timeTaken
+		if reqRes.TimeTaken > m.MaxLatency {
+			m.MaxLatency = reqRes.TimeTaken
 		}
 
-		m.TotalLatency += reqRes.timeTaken
+		m.TotalLatency += reqRes.TimeTaken
 		m.AvgLatency = m.TotalLatency / time.Duration(m.TotalRequests)
 	}
 }
 
 func (m *Metrics) WriteErrorsToFile(filename string) error {
-	m.Mux.RLock()
-	defer m.Mux.RUnlock()
+	m.mux.RLock()
+	defer m.mux.RUnlock()
 
 	if len(m.Errors) == 0 {
 		fmt.Println("No errors to write")
@@ -88,8 +88,8 @@ func (m *Metrics) WriteErrorsToFile(filename string) error {
 }
 
 func (m *Metrics) Reset() {
-	m.Mux.Lock()
-	defer m.Mux.Unlock()
+	m.mux.Lock()
+	defer m.mux.Unlock()
 
 	m.TotalRequests = 0
 	m.SuccessfulRequests = 0

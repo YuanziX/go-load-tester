@@ -282,21 +282,21 @@
               <span class="metric-label">Total</span>
               <span
                 class="metric-val"
-                x-text="formatNumber(metrics.TotalRequests)"
+                x-text="formatNumber(metrics.totalRequests)"
               ></span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Success</span>
               <span
                 class="metric-val success"
-                x-text="formatNumber(metrics.SuccessfulRequests)"
+                x-text="formatNumber(metrics.successfulRequests)"
               ></span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Failed</span>
               <span
                 class="metric-val error"
-                x-text="formatNumber(metrics.FailedRequests)"
+                x-text="formatNumber(metrics.failedRequests)"
               ></span>
             </div>
             <div class="divider"></div>
@@ -304,21 +304,21 @@
               <span class="metric-label">Min</span>
               <span
                 class="metric-val"
-                x-text="formatLatency(metrics.MinLatency)"
+                x-text="formatLatency(metrics.minLatency)"
               ></span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Max</span>
               <span
                 class="metric-val"
-                x-text="formatLatency(metrics.MaxLatency)"
+                x-text="formatLatency(metrics.maxLatency)"
               ></span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Avg</span>
               <span
                 class="metric-val"
-                x-text="formatLatency(metrics.AvgLatency)"
+                x-text="formatLatency(metrics.avgLatency)"
               ></span>
             </div>
           </div>
@@ -383,8 +383,8 @@
                   {
                     label: "Requests",
                     data: [
-                      this.metrics["SuccessfulRequests"] || 0,
-                      this.metrics["FailedRequests"] || 0,
+                      this.metrics["successfulRequests"] || 0,
+                      this.metrics["failedRequests"] || 0,
                     ],
                     backgroundColor: [
                       "rgba(16, 185, 129, 0.8)",
@@ -407,8 +407,8 @@
               }),
             });
             resp = await res.json();
-            this.metrics = resp["Metrics"];
-            this.id = resp["Id"];
+            this.metrics = resp["metrics"];
+            this.id = resp["id"];
             this.updateGraph();
           },
 
@@ -416,7 +416,7 @@
             const res = await fetch(`/metrics?id=${this.id}`);
             const newMetrics = await res.json();
             this.metrics = newMetrics;
-            if (newMetrics["IsCompleted"]) {
+            if (newMetrics["isCompleted"]) {
               this.isCompleted = true;
               clearInterval(this.intervalId);
             }
