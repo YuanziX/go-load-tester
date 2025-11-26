@@ -4,6 +4,7 @@
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Go Load Tester</title>
   </head>
 
@@ -322,6 +323,8 @@
             </div>
           </div>
 
+          <canvas id="perfAnalysis"></canvas>
+
           <template x-if="!isCompleted">
             <button
               @click="stop()"
@@ -348,6 +351,7 @@
           requestsPerWorker: 5,
           metrics: {},
           intervalId: null,
+          chart: null,
 
           formatLatency(ns) {
             if (!ns) return "0 ns";
@@ -367,6 +371,31 @@
             return number ? number.toLocaleString() : "0";
           },
 
+          updateGraph() {
+            if (this.chart) {
+              this.chart.destroy();
+            }
+            this.chart = new Chart(document.getElementById("perfAnalysis"), {
+              type: "bar",
+              data: {
+                labels: ["Successful", "Failed"],
+                datasets: [
+                  {
+                    label: "Requests",
+                    data: [
+                      this.metrics["SuccessfulRequests"] || 0,
+                      this.metrics["FailedRequests"] || 0,
+                    ],
+                    backgroundColor: [
+                      "rgba(16, 185, 129, 0.8)",
+                      "rgba(244, 63, 94, 0.8)",
+                    ],
+                  },
+                ],
+              },
+            });
+          },
+
           async startProcessing() {
             const res = await fetch("/metrics", {
               method: "POST",
@@ -380,6 +409,7 @@
             resp = await res.json();
             this.metrics = resp["Metrics"];
             this.id = resp["Id"];
+            this.updateGraph();
           },
 
           async updateMetrics() {
@@ -390,6 +420,7 @@
               this.isCompleted = true;
               clearInterval(this.intervalId);
             }
+            this.updateGraph();
           },
 
           async stop() {
