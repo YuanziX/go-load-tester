@@ -9,307 +9,329 @@
 
   <style>
     :root {
-      --primary-color: #3b82f6;
-      --primary-dark: #1d4ed8;
-      --red: #ef4444;
-      --red-dark: #dc2626;
-      --background-light: #f3f4f6;
-      --text-color: #1f2937;
-      --border-color: #d1d5db;
-      --success-color: #10b981;
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-alt: #334155;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent: #06b6d4;
+      --accent-dark: #0891b2;
+      --success: #10b981;
+      --error: #f43f5e;
+      --border: #475569;
     }
 
     * {
       box-sizing: border-box;
-      font-family: "Inter", sans-serif;
       margin: 0;
       padding: 0;
     }
 
     body {
-      background-color: var(--background-light);
+      background: var(--bg);
+      color: var(--text);
+      font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
     }
 
     .container {
       width: 100%;
-      max-width: 440px;
-      background: white;
-      border-radius: 12px;
-      padding: 32px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+      max-width: 380px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
     }
 
     .header {
-      text-align: center;
-      color: var(--primary-dark);
-      margin-bottom: 8px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
     }
 
-    .header h2 {
-      margin: 0;
-      font-size: 28px;
+    .header h1 {
+      font-size: 18px;
       font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .header span {
+      font-size: 12px;
+      color: var(--text-dim);
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
+      margin-bottom: 14px;
     }
 
     .form-group label {
+      font-size: 12px;
       font-weight: 600;
-      color: var(--text-color);
-      font-size: 14px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+    input {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text);
+      font-family: inherit;
     }
 
-    input[type="text"]:focus,
-    input[type="number"]:focus {
-      border-color: var(--primary-color);
+    input:focus {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1);
+    }
+
+    input::placeholder {
+      color: var(--text-dim);
     }
 
     .btn {
       width: 100%;
-      color: white;
-      border: none;
-      padding: 14px 24px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
+      padding: 8px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 16px;
-      transition: background-color 0.2s, box-shadow 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-family: inherit;
+      margin-top: 2px;
     }
 
-    .btn-submit {
-      background-color: var(--primary-color);
-    }
-
-    .btn-submit:hover {
-      background-color: var(--primary-dark);
-    }
-
-    .btn-submit:active {
-      background-color: #1e40af;
+    .btn:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
     }
 
     .btn-stop {
-      background-color: var(--red);
+      background: var(--error);
+      border-color: var(--error);
+      color: white;
     }
 
     .btn-stop:hover {
-      background-color: var(--red-dark);
+      background: #e11d48;
+      border-color: #e11d48;
     }
 
-    .status-section {
-      text-align: center;
-      padding: 16px;
-      border-radius: 8px;
+    .status {
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 12px;
       font-weight: 600;
-      font-size: 16px;
-      color: var(--primary-dark);
-      background-color: #bfdbfe;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .status-section.completed {
-      background-color: #d1fae5;
-      color: var(--success-color);
+    .status.running {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
     }
 
-    .results-card {
-      background-color: white;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px;
+    .status.completed {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .pulse {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .metrics {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 12px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .results-card h3 {
-      color: var(--primary-dark);
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
+      gap: 8px;
     }
 
     .metric-row {
       display: flex;
       justify-content: space-between;
-      font-size: 16px;
-      color: var(--text-color);
+      align-items: center;
     }
 
-    .metric-row span:first-child {
-      font-weight: 500;
+    .metric-label {
+      color: var(--text-dim);
     }
 
-    .metric-value {
+    .metric-val {
       font-weight: 700;
-      color: var(--primary-dark);
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
 
-    .metric-value.success {
-      color: var(--success-color);
+    .metric-val.success {
+      color: var(--success);
     }
 
-    .metric-value.fail {
-      color: #ef4444;
+    .metric-val.error {
+      color: var(--error);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+      margin-top: 0;
     }
   </style>
 
   <body>
     <div x-data="loadTester()" class="container">
       <div class="header">
-        <h2>Go Load Tester</h2>
+        <h1>LOAD TEST</h1>
+        <span>v1.0</span>
       </div>
 
       <template x-if="!isWorking">
-        <div
-          style="display: flex; flex-direction: column; gap: 16px; width: 100%"
-        >
+        <div>
           <div class="form-group">
-            <label for="url">Enter URL:</label>
+            <label>URL</label>
             <input
               type="text"
-              id="url"
               x-model="url"
-              placeholder="e.g., http://localhost:8080/api"
+              placeholder="http://localhost:3000"
             />
           </div>
 
           <div class="form-group">
-            <label for="workers">Enter Requests per second:</label>
+            <label>RPS (requests/sec)</label>
             <input
               type="number"
-              id="workers"
               x-model="requestsPerSecond"
               min="1"
-              placeholder="e.g., 500"
+              placeholder="500"
             />
           </div>
 
           <div class="form-group">
-            <label for="requestsPerWorker"
-              >Duration of test (in seconds):</label
-            >
+            <label>Duration (sec)</label>
             <input
               type="number"
-              id="requestsPerWorker"
               x-model="requestsPerWorker"
               min="1"
-              placeholder="e.g., 1000"
+              placeholder="60"
             />
           </div>
 
-          <button @click="submit()" class="btn btn-submit">
-            Start Load Test
-          </button>
+          <button @click="submit()" class="btn">START</button>
         </div>
       </template>
 
       <template x-if="isWorking">
-        <div
-          style="display: flex; flex-direction: column; gap: 20px; width: 100%"
-        >
+        <div>
           <template x-if="!isCompleted">
-            <div class="status-section">
-              <span>Processing: Load test is running...</span>
-              <button @click="stop()" class="btn btn-stop">
-                <span x-text="isStopping ? '⏳ Stopping...' : 'Stop'"></span>
-              </button>
+            <div class="status running">
+              <span class="pulse"></span>
+              Running...
             </div>
           </template>
           <template x-if="isCompleted">
-            <div class="status-section completed">
-              <span>Completed: Load testing has finished!</span>
-              <button @click="reset()" class="btn btn-submit">Retest</button>
+            <div class="status completed">
+              <span class="pulse"></span>
+              Complete
             </div>
           </template>
 
-          <div class="results-card">
-            <h3>Load Test Metrics</h3>
-
+          <div class="metrics">
             <div class="metric-row">
-              <span>Total Requests</span>
+              <span class="metric-label">Total</span>
               <span
-                class="metric-value"
+                class="metric-val"
                 x-text="formatNumber(metrics.TotalRequests)"
               ></span>
             </div>
-
             <div class="metric-row">
-              <span>Successful Requests</span>
+              <span class="metric-label">Success</span>
               <span
-                class="metric-value success"
+                class="metric-val success"
                 x-text="formatNumber(metrics.SuccessfulRequests)"
               ></span>
             </div>
-
             <div class="metric-row">
-              <span>Failed Requests</span>
+              <span class="metric-label">Failed</span>
               <span
-                class="metric-value fail"
+                class="metric-val error"
                 x-text="formatNumber(metrics.FailedRequests)"
               ></span>
             </div>
-
-            <hr
-              style="
-                border: none;
-                border-top: 1px dashed var(--border-color);
-                margin: 4px 0;
-              "
-            />
-
+            <div class="divider"></div>
             <div class="metric-row">
-              <span>Min Latency</span>
+              <span class="metric-label">Min</span>
               <span
-                class="metric-value"
+                class="metric-val"
                 x-text="formatLatency(metrics.MinLatency)"
               ></span>
             </div>
-
             <div class="metric-row">
-              <span>Max Latency</span>
+              <span class="metric-label">Max</span>
               <span
-                class="metric-value"
+                class="metric-val"
                 x-text="formatLatency(metrics.MaxLatency)"
               ></span>
             </div>
-
             <div class="metric-row">
-              <span>Avg Latency</span>
+              <span class="metric-label">Avg</span>
               <span
-                class="metric-value"
+                class="metric-val"
                 x-text="formatLatency(metrics.AvgLatency)"
               ></span>
             </div>
           </div>
+
+          <template x-if="!isCompleted">
+            <button
+              @click="stop()"
+              class="btn btn-stop"
+              x-text="isStopping ? 'STOPPING...' : 'STOP'"
+            ></button>
+          </template>
+          <template x-if="isCompleted">
+            <button @click="reset()" class="btn">RETEST</button>
+          </template>
         </div>
       </template>
     </div>
@@ -330,7 +352,6 @@
           formatLatency(ns) {
             if (!ns) return "0 ns";
             const num = Number(ns);
-
             if (num >= 1000000000) {
               return `${(num / 1000000000).toFixed(2)} s`;
             } else if (num >= 1000000) {
@@ -342,7 +363,6 @@
             }
           },
 
-          // Helper function to format numbers with commas (for better readability)
           formatNumber(number) {
             return number ? number.toLocaleString() : "0";
           },
@@ -357,7 +377,6 @@
                 rpw: Number(this.requestsPerWorker),
               }),
             });
-
             resp = await res.json();
             this.metrics = resp["Metrics"];
             this.id = resp["Id"];
@@ -369,18 +388,16 @@
             this.metrics = newMetrics;
             if (newMetrics["IsCompleted"]) {
               this.isCompleted = true;
-              clearInterval(this.intervalId); // Stop polling when completed
+              clearInterval(this.intervalId);
             }
           },
 
           async stop() {
-            // stop polling
             clearInterval(this.intervalId);
             this.isStopping = true;
             const res = await fetch(`/metrics?id=${this.id}`, {
               method: "DELETE",
             });
-
             const newMetrics = await res.json();
             this.metrics = newMetrics;
             this.isCompleted = true;
@@ -399,22 +416,14 @@
               this.requestsPerSecond <= 0 ||
               this.requestsPerWorker <= 0
             ) {
-              alert(
-                "Please enter valid URL, Worker Count, and Requests per worker."
-              );
+              alert("Please enter valid URL, RPS, and Duration.");
               return;
             }
-
-            // Reset state
             this.isWorking = true;
             this.isCompleted = false;
             this.metrics = {};
             if (this.intervalId) clearInterval(this.intervalId);
-
-            // Immediately fetch once to start the process and get initial metrics
             await this.startProcessing();
-
-            // Poll every second to update metrics
             this.intervalId = setInterval(() => {
               this.updateMetrics();
             }, 1000);
